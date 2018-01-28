@@ -16,8 +16,8 @@
 #  location: "./custom-snapshot.yaml"
 resolver: lts-10.0
 
-ghc-options: 
-  "*": -pgmlg++
+ghc-options:
+  $everything: -pgmlg++
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
