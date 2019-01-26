@@ -27,11 +27,11 @@ import qualified Data.Map.Strict as M
 import Foreign
 
 import Debug.C
-import Plugin.WlrootsSurfaceSprite
+import Plugin.SurfaceSprite
 import Graphics.Wayland.WlRoots.Surface
 
--- type SurfaceMap = M.Map (Ptr C'WlrSurface) GodotWlrootsSurfaceSprite -- inline-C version
-type SurfaceMap = M.Map (Ptr WlrSurface) GodotWlrootsSurfaceSprite -- C2HS version
+-- type SurfaceMap = M.Map (Ptr C'WlrSurface) GodotSurfaceSprite -- inline-C version
+type SurfaceMap = M.Map (Ptr WlrSurface) GodotSurfaceSprite -- C2HS version
 
 
 data Payload = Payload

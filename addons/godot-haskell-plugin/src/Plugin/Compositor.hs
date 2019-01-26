@@ -7,7 +7,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Plugin.Wlroots (GodotWlrootsCompositor(..)) where
+module Plugin.Compositor (GodotCompositor(..)) where
 
 import Foreign
 
@@ -22,8 +22,8 @@ import           Godot.Extra.Register
 import qualified Data.Map.Strict as M
 
 import Plugin.Input
-import Plugin.WlrootsSurfaceSprite
-import Plugin.WlrootsSurfaceTexture
+import Plugin.SurfaceSprite
+import Plugin.SurfaceTexture
 
 import Control.Monad
 import Control.Concurrent
@@ -106,35 +106,35 @@ import      Graphics.Wayland.WlRoots.XdgShellv6
 initializeSimulaCtxAndIncludes
 
 -- TODO: Rename typename to "Compositor" and propogate throughout godot scene tree.
-data GodotWlrootsCompositor = GodotWlrootsCompositor
+data GodotCompositor = GodotCompositor
   { _gwcObj      :: GodotObject
   , _gwcCompositor :: TVar (Ptr WlrCompositor)
   , _gwcWlDisplay :: TVar DisplayServer
   , _gwcWlEventLoop :: TVar EventLoop
   , _gwcBackEnd :: TVar (Ptr Backend)
-  , _gwcSurfaces :: TVar (M.Map (Ptr WlrSurface) GodotWlrootsSurfaceSprite)
+  , _gwcSurfaces :: TVar (M.Map (Ptr WlrSurface) GodotSurfaceSprite)
   , _gwcOutput :: TVar (Ptr WlrOutput) -- possibly needs to be (TVar [Ptr WlrOutput])
 --   , _gwcNormalLayer :: TVar (Ptr C'WlrLayer) -- so far unused
   }
 
 {- inline-C datatype representation
-data GodotWlrootsCompositor = GodotWlrootsCompositor
+data GodotCompositor = GodotCompositor
   { _gwcObj      :: GodotObject
   , _gwcCompositor :: TVar (Ptr C'WlrCompositor)
   , _gwcWlDisplay :: TVar C'WlDisplay  -- DisplayServer ~ * wl_display
   , _gwcWlEventLoop :: TVar C'WlEventLoop
   , _gwcBackEnd :: TVar (Ptr C'WlrBackend)
-  , _gwcSurfaces :: TVar (M.Map (Ptr C'WlrSurface) GodotWlrootsSurfaceSprite)
+  , _gwcSurfaces :: TVar (M.Map (Ptr C'WlrSurface) GodotSurfaceSprite)
   , _gwcOutput :: TVar (Ptr C'WlrOutput) -- possibly needs to be (TVar [Ptr C'WlrOutput])
 -- , _gwcNormalLayer :: TVar (Ptr C'WlrLayer) -- so far unused
   }
 -}
 
-instance GodotClass GodotWlrootsCompositor where
-  godotClassName = "WlrootsCompositor"
+instance GodotClass GodotCompositor where
+  godotClassName = "Compositor"
 
-instance ClassExport GodotWlrootsCompositor where
-  classInit obj  = GodotWlrootsCompositor obj
+instance ClassExport GodotCompositor where
+  classInit obj  = GodotCompositor obj
     <$> atomically (newTVar undefined)
     <*> atomically (newTVar undefined)
     <*> atomically (newTVar undefined)
@@ -148,21 +148,21 @@ instance ClassExport GodotWlrootsCompositor where
     , GodotMethod NoRPC "_input" input
     ]
 
-instance HasBaseClass GodotWlrootsCompositor where
-  type BaseClass GodotWlrootsCompositor = GodotSpatial
-  super (GodotWlrootsCompositor obj _ _ _ _ _ _) = GodotSpatial obj
+instance HasBaseClass GodotCompositor where
+  type BaseClass GodotCompositor = GodotSpatial
+  super (GodotCompositor obj _ _ _ _ _ _) = GodotSpatial obj
 
-ready :: GFunc GodotWlrootsCompositor
+ready :: GFunc GodotCompositor
 ready compositor _ = do
   startBaseCompositor compositor
   toLowLevel VariantNil
 
-startBaseCompositor :: GodotWlrootsCompositor -> IO ()
+startBaseCompositor :: GodotCompositor -> IO ()
 startBaseCompositor compositor = do
   startBaseThread compositor
   startTelemetry (_gwcSurfaces compositor)
 
-startBaseThread :: GodotWlrootsCompositor -> IO ()
+startBaseThread :: GodotCompositor -> IO ()
 startBaseThread compositor = Control.Monad.void $ forkOS $ do
   putStrLn "startBaseThread not implemented yet."
   -- return ()
@@ -204,7 +204,7 @@ startBaseThread compositor = Control.Monad.void $ forkOS $ do
 
 
 -- TODO: check the origin plane?
-moveToUnoccupied :: GodotWlrootsCompositor -> GodotWlrootsSurfaceSprite -> IO ()
+moveToUnoccupied :: GodotCompositor -> GodotSurfaceSprite -> IO ()
 moveToUnoccupied gwc gwss = do
   surfaces <- atomically $ readTVar (_gwcSurfaces gwc)
   let elems = filter (\x -> asObj x /= asObj gwss) $ M.elems surfaces
@@ -229,13 +229,13 @@ moveToUnoccupied gwc gwss = do
 
   G.translate gwss =<< toLowLevel newPos
 
-getSeat :: GodotWlrootsCompositor -> IO (Ptr C'WlrSeat)
+getSeat :: GodotCompositor -> IO (Ptr C'WlrSeat)
 getSeat gwc = undefined
   -- do (seat:_) <- atomically (readTVar (_gwcCompositor gwc)) >>= westonCompositorSeats
   --    return seat
 
 
-input :: GFunc GodotWlrootsCompositor
+input :: GFunc GodotCompositor
 input self args = do
   (getArg' 0 args :: IO GodotObject)
     >>= asClass GodotInputEventKey "InputEventKey" >>= \case
@@ -249,5 +249,5 @@ input self args = do
       Nothing  -> return () -- not a key
   toLowLevel VariantNil
   -- where
-    -- getKeyboard :: GodotWlrootsCompositor -> IO (Ptr C'WlrKeyboard)
+    -- getKeyboard :: GodotCompositor -> IO (Ptr C'WlrKeyboard)
     -- getKeyboard gwc = getSeat gwc >>= weston_seat_get_keyboard

@@ -19,7 +19,7 @@ import qualified Data.Text                     as T
 import           Linear
 
 import           Plugin.Imports
-import           Plugin.WlrootsSurfaceSprite
+import           Plugin.SurfaceSprite
 import           Plugin.Input.Telekinesis
 import           Plugin.Pointer
 
@@ -118,11 +118,11 @@ isButtonPressed btnId gsc = do
 
 
 -- | Get the window pointed at if any.
-pointerWindow :: GodotSimulaController -> IO (Maybe GodotWlrootsSurfaceSprite)
+pointerWindow :: GodotSimulaController -> IO (Maybe GodotSurfaceSprite)
 pointerWindow gsc = do
   isColliding <- G.is_colliding $ _gscRayCast gsc
   if isColliding
-    then G.get_collider (_gscRayCast gsc) >>= tryObjectCast @GodotWlrootsSurfaceSprite
+    then G.get_collider (_gscRayCast gsc) >>= tryObjectCast @GodotSurfaceSprite
     else return Nothing
 
 

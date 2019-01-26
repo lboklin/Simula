@@ -4,6 +4,6 @@
 
 [resource]
 
-class_name = "WlrootsSurfaceSprite"
+class_name = "Compositor"
 library = ExtResource( 1 )
 _sections_unfolded = [ "Resource" ]

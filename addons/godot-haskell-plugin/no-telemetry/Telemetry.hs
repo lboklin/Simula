@@ -26,7 +26,7 @@ import qualified Data.Map.Strict as M
 
 import Plugin.WaylandTypes
 
-type SurfaceMap = M.Map (Ptr C'WlrSurface) GodotWlrootsSurfaceSprite
+type SurfaceMap = M.Map (Ptr C'WlrSurface) GodotSurfaceSprite
 
 startTelemetry :: TVar SurfaceMap -> IO ()
 startTelemetry tvarSurfaceMap = return ()
