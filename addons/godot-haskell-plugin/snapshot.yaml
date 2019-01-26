@@ -1,0 +1,7 @@
+resolver: nightly-2019-01-15
+name: godot-haskell-snapshot
+
+packages:
+- godot-haskell-0.1.0.0@sha256:9d92ff27c7b6c6d2155286f04ba2c432f96460f448fd976654ef26a84f0e35a6,26290
+- git: https://gitlab.com/lboklin/godot-extra
+  commit: 4a805886
